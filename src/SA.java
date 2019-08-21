@@ -43,18 +43,18 @@ public class SA {
 
     private double getFitness(double[] Xi) {
         // 代理区域1（用餐区域）的四个坐标点
-        Coordinate p11 = new Coordinate(Xi[2], Xi[3]);
-        Coordinate p12 = new Coordinate(Xi[2] + Xi[0], Xi[3]);
-        Coordinate p13 = new Coordinate(Xi[2] + Xi[0], Xi[3] + Xi[1]);
-        Coordinate p14 = new Coordinate(Xi[2], Xi[3] + Xi[1]);
+        Coordinate p11 = new Coordinate(Xi[3], Xi[4]);
+        Coordinate p12 = new Coordinate(Xi[3] + Xi[0], Xi[4]);
+        Coordinate p13 = new Coordinate(Xi[3] + Xi[0], Xi[4] + Xi[1]);
+        Coordinate p14 = new Coordinate(Xi[3], Xi[4] + Xi[1]);
         Coordinate[] area1 = new Coordinate[]{
                 p11, p12, p13, p14, p11
         };
         // 代理区域2（会客区域）的四个坐标点
-        Coordinate p21 = new Coordinate(Xi[6], Xi[7]);
-        Coordinate p22 = new Coordinate(Xi[6] + Xi[4], Xi[7]);
-        Coordinate p23 = new Coordinate(Xi[6] + Xi[4], Xi[7] + Xi[5]);
-        Coordinate p24 = new Coordinate(Xi[6], Xi[7] + Xi[5]);
+        Coordinate p21 = new Coordinate(Xi[8], Xi[9]);
+        Coordinate p22 = new Coordinate(Xi[8] + Xi[4], Xi[9]);
+        Coordinate p23 = new Coordinate(Xi[8] + Xi[4], Xi[9] + Xi[5]);
+        Coordinate p24 = new Coordinate(Xi[8], Xi[9] + Xi[5]);
         Coordinate[] area2 = new Coordinate[]{
                 p21, p22, p23, p24, p21
         };
@@ -69,7 +69,8 @@ public class SA {
         if (Xi.length == 10) {
             constraint1 = getC1(area1, area2);
             constraint2 = getC2(area1, area2);
-            constraint4 = getC4(Xi[4]);
+//            constraint4 = getC4(Xi[2]);
+            constraint5 = getC5(room, area1, area2, Xi);
             constraint7 = getC7(area1, area2);
         }
 
@@ -96,6 +97,16 @@ public class SA {
         return Math.abs(tmp - (Math.PI));
     }
 
+    private double getC5(Coordinate[] room, Coordinate[] area1, Coordinate[] area2, double[] Xi) {
+        double tmp1 = SAutil.getDistance(room, area1, Xi[2]);
+        if (tmp1 >= 0 && tmp1 <= 0.1) tmp1 = 0;
+        else tmp1 = 1 - Math.pow((0.1 / tmp1), 2);
+        double tmp2 = SAutil.getDistance(room, area2, Xi[7]);
+        if (tmp2 >= 0 && tmp2 <= 0.1) tmp2 = 0;
+        else tmp2 = 1 - Math.pow((0.1 / tmp2), 2);
+        return tmp1 + tmp2;
+    }
+
     private double getC7(Coordinate[] area1, Coordinate[] area2) {
         double S = (SAutil.getArea(area1) + SAutil.getArea(area2)) / SAutil.getArea(room);
         double res = 0;
@@ -117,14 +128,22 @@ public class SA {
             for (int iter = 0; iter < 1000; iter++) { //迭代次数
                 int index = rand.nextInt(dim);
                 double stepindex = (-step) + rand.nextDouble() * (step - (-step)) % (step - (-step) + 1);
-                int tmp = (int)Math.abs(Math.floor(stepindex)) % 4;
+                int tmp = (int) Math.abs(Math.floor(stepindex)) % 4;
                 for (int i = 0; i < popsize; i++) {
-                    if(index == 2 || index == 7) { // 角度
+                    if (index == 2 || index == 7) { // 角度
                         newpop.get(i)[index] = (newpop.get(i)[index] + tmp) % 4;
-                    } else if(index == 0 || index == 1 || index == 5 || index == 6) { // 长宽
-                        newpop.get(i)[index] += stepindex;
+                    } else if (index == 0 || index == 1 || index == 5 || index == 6) { // 长宽
+                        if (newpop.get(i)[index] + stepindex > 0) {
+                            newpop.get(i)[index] += stepindex;
+                        } else {
+                            newpop.get(i)[index] = 0;
+                        }
                     } else { // 坐标
-                        newpop.get(i)[index] += stepindex;
+                        if (newpop.get(i)[index] + stepindex > 0) {
+                            newpop.get(i)[index] += stepindex;
+                        } else {
+                            newpop.get(i)[index] = 0;
+                        }
                     }
 
 //                    newpop.get(i)[index] += stepindex;
@@ -171,12 +190,12 @@ public class SA {
         for (int i = 0; i < 4; i++) { //随机解个数
             r[0] = nextDouble(0, 11);
             r[1] = nextDouble(0, 11);
-            r[2] = nextInt(0, 4);
+            r[2] = nextInt(0, 4); // 0:向下 1:向左 2:向上 3:向右
             r[3] = Math.abs(r[0]);
             r[4] = Math.abs(r[1]);
             r[5] = nextDouble(0, 11);
             r[6] = nextDouble(0, 11);
-            r[7] = nextInt(0, 4);
+            r[7] = nextInt(0, 4); // 0:向下 1:向左 2:向上 3:向右
             r[8] = Math.abs(r[4]);
             r[9] = Math.abs(r[5]);
             pop.add(r);
