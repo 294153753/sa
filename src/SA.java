@@ -32,6 +32,11 @@ public class SA {
             new Coordinate(7, 3.5), new Coordinate(7, 0)
     }; // 房间几何信息
 
+    private Coordinate[] wall = new Coordinate[]{
+            new Coordinate(7, 0), new Coordinate(7, 3.5), new Coordinate(11, 3.5),
+            new Coordinate(11, 0), new Coordinate(7, 0)
+    }; // 主墙几何信息
+
     public SA(int popsize, int dim, List<double[]> pop) {
         this.popsize = popsize;
         this.pop = pop;
@@ -52,9 +57,9 @@ public class SA {
         };
         // 代理区域2（会客区域）的四个坐标点
         Coordinate p21 = new Coordinate(Xi[8], Xi[9]);
-        Coordinate p22 = new Coordinate(Xi[8] + Xi[4], Xi[9]);
-        Coordinate p23 = new Coordinate(Xi[8] + Xi[4], Xi[9] + Xi[5]);
-        Coordinate p24 = new Coordinate(Xi[8], Xi[9] + Xi[5]);
+        Coordinate p22 = new Coordinate(Xi[8] + Xi[5], Xi[9]);
+        Coordinate p23 = new Coordinate(Xi[8] + Xi[5], Xi[9] + Xi[6]);
+        Coordinate p24 = new Coordinate(Xi[8], Xi[9] + Xi[6]);
         Coordinate[] area2 = new Coordinate[]{
                 p21, p22, p23, p24, p21
         };
@@ -69,7 +74,7 @@ public class SA {
         if (Xi.length == 10) {
             constraint1 = getC1(area1, area2);
             constraint2 = getC2(area1, area2);
-//            constraint4 = getC4(Xi[2]);
+            constraint4 = getC4(area1);
             constraint5 = getC5(room, area1, area2, Xi);
             constraint7 = getC7(area1, area2);
         }
@@ -85,16 +90,19 @@ public class SA {
         return SAutil.getIntersection(area1, area2) / (SAutil.getArea(area1) + SAutil.getArea(area2));
     }
 
-    private double getC4(double angle) {
-        double tmp = 0;
-        if (angle > 0) {
-            tmp = Math.PI / 2 * 3;
-        } else if (angle < 0) {
-            tmp = Math.PI / 2;
+    private double getC4(Coordinate[] area) { //修改了主墙约束
+        double intersection = SAutil.getIntersection(wall, area);
+        double s = SAutil.getArea(area);
+        double tmp = intersection / s;
+        double res;
+        if(tmp >= 0.85) {
+            res = 0;
+        } else if(tmp > 0.5 && tmp < 0.85) {
+            res = 1 - Math.pow(tmp, 2);
         } else {
-            tmp = Double.POSITIVE_INFINITY;
+            res = 1 - Math.pow(tmp, 3);
         }
-        return Math.abs(tmp - (Math.PI));
+        return res;
     }
 
     private double getC5(Coordinate[] room, Coordinate[] area1, Coordinate[] area2, double[] Xi) {

@@ -21,7 +21,7 @@ public class SAutil {
         return g.getArea();
     }
 
-    public static double getIntersection(Coordinate[] coordinates1, Coordinate[] coordinates2) {
+    public static double getIntersection(Coordinate[] coordinates1, Coordinate[] coordinates2) { //交集
         // TODO Auto-generated method stub
         Geometry g1 = new GeometryFactory().createPolygon(coordinates1);
         Geometry g2 = new GeometryFactory().createPolygon(coordinates2);
