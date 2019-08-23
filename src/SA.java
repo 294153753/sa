@@ -78,7 +78,7 @@ public class SA {
             constraint5 = getC5(room, area1, area2, Xi);
             constraint7 = getC7(area1, area2);
         }
-
+//        System.out.println(constraint1 + ", " + constraint2 + ", " + constraint4 + ", " + constraint5 + ", " + constraint7);
         return constraint1 * 5000 + constraint2 * 600 + constraint3 * 600 + constraint4 * 1500 + constraint5 * 1000 + constraint6 * 110 + constraint7 * 50;
     }
 
@@ -128,9 +128,16 @@ public class SA {
         return res;
     }
 
+    private List<double[]> deepClone(List<double[]> list) {
+        List<double[]> res = new ArrayList<>();
+        for(int i = 0; i < list.size(); i++) {
+            res.add(list.get(i).clone());
+        }
+        return res;
+    }
+
     public double[] runSA() {
-        List<double[]> newpop = new ArrayList<>();
-        newpop.addAll(pop);
+        List<double[]> newpop = deepClone(pop);
 
         while (T > 0.1) {
             for (int iter = 0; iter < 1000; iter++) { //迭代次数
@@ -158,7 +165,7 @@ public class SA {
 
                     double fold = getFitness(pop.get(i));//老解
                     double fnew = getFitness(newpop.get(i));//新解
-
+                    System.out.println(fold + ", " + fnew + ", " + (fnew - fold));
                     if (fnew < fold || Math.random() < Math.exp(-(fnew - fold) / T)) {
                         for (int j = 0; j < popsize; j++) {
                             for (int k = 0; k < dim; k++) {
@@ -214,6 +221,31 @@ public class SA {
 
         SA sa = new SA(pop.size(), 10, pop);
         double[] res = sa.runSA();
+
+        Coordinate[] room = new Coordinate[]{
+                new Coordinate(7, 0), new Coordinate(11, 0), new Coordinate(11, 7.5),
+                new Coordinate(10, 7.5), new Coordinate(10, 9), new Coordinate(8, 9),
+                new Coordinate(8, 5), new Coordinate(0, 5), new Coordinate(0, 3.5),
+                new Coordinate(7, 3.5), new Coordinate(7, 0)
+        }; // 房间几何信息
+        // 代理区域1（用餐区域）的四个坐标点
+        Coordinate p11 = new Coordinate(res[3], res[4]);
+        Coordinate p12 = new Coordinate(res[3] + res[0], res[4]);
+        Coordinate p13 = new Coordinate(res[3] + res[0], res[4] + res[1]);
+        Coordinate p14 = new Coordinate(res[3], res[4] + res[1]);
+        Coordinate[] area1 = new Coordinate[]{
+                p11, p12, p13, p14, p11
+        };
+        // 代理区域2（会客区域）的四个坐标点
+        Coordinate p21 = new Coordinate(res[8], res[9]);
+        Coordinate p22 = new Coordinate(res[8] + res[5], res[9]);
+        Coordinate p23 = new Coordinate(res[8] + res[5], res[9] + res[6]);
+        Coordinate p24 = new Coordinate(res[8], res[9] + res[6]);
+        Coordinate[] area2 = new Coordinate[]{
+                p21, p22, p23, p24, p21
+        };
+        Display.draw(room, area1, area2);
+
         System.out.println(Arrays.toString(res));
     }
 }

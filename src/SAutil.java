@@ -3,6 +3,8 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 
+import java.util.Arrays;
+
 public class SAutil {
     // coordinates2 - coordinates1 差值面积
     public static double getDifference(Coordinate[] coordinates1, Coordinate[] coordinates2) {
