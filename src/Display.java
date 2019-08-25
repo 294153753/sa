@@ -23,13 +23,13 @@ public class Display extends JPanel {
         Polygon a2 = new Polygon();
         Polygon a3 = new Polygon();
         for (int i = 0; i < area1.length; i++){
-            a1.addPoint((int) (area1[i].x * 80 + 20), (int) (1000 - area1[i].y * 80));
+            a1.addPoint((int) (area1[i].x * 80 + 20), (int) (800 - area1[i].y * 80));
         }
         for (int i = 0; i < area2.length; i++){
-            a2.addPoint((int) (area2[i].x * 80 + 20), (int) (1000 - area2[i].y * 80));
+            a2.addPoint((int) (area2[i].x * 80 + 20), (int) (800 - area2[i].y * 80));
         }
         for (int i = 0; i < area3.length; i++){
-            a3.addPoint((int) (area3[i].x * 80 + 20), (int) (1000 - area3[i].y * 80));
+            a3.addPoint((int) (area3[i].x * 80 + 20), (int) (800 - area3[i].y * 80));
         }
         g.drawPolygon(a1);
         g.drawPolygon(a2);

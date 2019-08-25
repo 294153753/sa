@@ -10,7 +10,7 @@ import java.util.Random;
  */
 public class SA {
     private double T = 10000.0; //温度
-    private double rate = 0.75; //冷却系数
+    private double rate = 0.99; //冷却系数
     private int step = 1;   //状态步数
 
     private double[] F;    // Fitness (N)
@@ -21,6 +21,9 @@ public class SA {
 
     private int dim;    //维度
     private int popsize;    //种群数量
+
+    private double width;
+    private double height;
 
     private double[] best;
     private int bestindex = 0;
@@ -37,13 +40,25 @@ public class SA {
             new Coordinate(11, 0), new Coordinate(7, 0)
     }; // 主墙几何信息
 
-    public SA(int popsize, int dim, List<double[]> pop) {
+    private Coordinate[][] doors = new Coordinate[][]{
+            new Coordinate[]{
+                    new Coordinate(0, 3.5), new Coordinate(7, 3.5), new Coordinate(7, 5),
+                    new Coordinate(0, 5), new Coordinate(0, 3.5)
+            },
+            new Coordinate[]{
+                    new Coordinate(8, 9), new Coordinate(10, 9), new Coordinate(10, 7.5),
+                    new Coordinate(8, 7.5), new Coordinate(8, 9)
+            }
+    }; // 门区域几何信息
+
+    public SA(int popsize, int dim, List<double[]> pop, double width, double height) {
         this.popsize = popsize;
         this.pop = pop;
-
         this.dim = dim;
-
         this.F = new double[popsize];
+
+        this.width = width;
+        this.height = height;
     }
 
     private double getFitness(double[] Xi) {
@@ -139,25 +154,37 @@ public class SA {
     public double[] runSA() {
         List<double[]> newpop = deepClone(pop);
 
-        while (T > 0.1) {
-            for (int iter = 0; iter < 1000; iter++) { //迭代次数
+        while (T > 1e-15) {
+//            for (int iter = 0; iter < 1000; iter++) { //迭代次数
                 int index = rand.nextInt(dim);
                 double stepindex = (-step) + rand.nextDouble() * (step - (-step)) % (step - (-step) + 1);
                 int tmp = (int) Math.abs(Math.floor(stepindex)) % 4;
                 for (int i = 0; i < popsize; i++) {
                     if (index == 2 || index == 7) { // 角度
                         newpop.get(i)[index] = (newpop.get(i)[index] + tmp) % 4;
-                    } else if (index == 0 || index == 1 || index == 5 || index == 6) { // 长宽
-                        if (newpop.get(i)[index] + stepindex > 0) {
+                    } else if (index == 0 || index == 5 || index == 1 || index == 6) { //长宽
+                        if (newpop.get(i)[index] + stepindex > 1 && newpop.get(i)[index] + stepindex < 4) {
                             newpop.get(i)[index] += stepindex;
+                        } else if(newpop.get(i)[index] + stepindex < 1) {
+                            newpop.get(i)[index] *= 2;
                         } else {
-                            newpop.get(i)[index] = 0;
+                            newpop.get(i)[index] /= 2;
                         }
-                    } else { // 坐标
-                        if (newpop.get(i)[index] + stepindex > 0) {
+                    } else if(index == 2 || index == 7) { // x坐标
+                        if (newpop.get(i)[index] + stepindex > 0 && newpop.get(i)[index] + stepindex < width) {
                             newpop.get(i)[index] += stepindex;
+                        } else if(newpop.get(i)[index] + stepindex < 0) {
+                            newpop.get(i)[index] *= 2;
                         } else {
-                            newpop.get(i)[index] = 0;
+                            newpop.get(i)[index] /= 2;
+                        }
+                    } else if(index == 3 || index == 8) { // y坐标
+                        if (newpop.get(i)[index] + stepindex > 1 && newpop.get(i)[index] + stepindex < height) {
+                            newpop.get(i)[index] += stepindex;
+                        } else if(newpop.get(i)[index] + stepindex < 1) {
+                            newpop.get(i)[index] *= 2;
+                        } else {
+                            newpop.get(i)[index] /= 2;
                         }
                     }
 
@@ -175,7 +202,7 @@ public class SA {
                     }
                 }
                 T = T * rate;
-            }
+//            }
         }
 
         F = new double[pop.size()];
@@ -219,7 +246,7 @@ public class SA {
 
 //        System.out.println(pop);
 
-        SA sa = new SA(pop.size(), 10, pop);
+        SA sa = new SA(pop.size(), 10, pop, 11, 9);
         double[] res = sa.runSA();
 
         Coordinate[] room = new Coordinate[]{
