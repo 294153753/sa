@@ -89,12 +89,13 @@ public class SA {
         if (Xi.length == 10) {
             constraint1 = getC1(area1, area2);
             constraint2 = getC2(area1, area2);
+            constraint3 = getC3(doors, new Coordinate[][]{area1, area2});
             constraint4 = getC4(area1);
             constraint5 = getC5(room, area1, area2, Xi);
             constraint7 = getC7(area1, area2);
         }
 //        System.out.println(constraint1 + ", " + constraint2 + ", " + constraint4 + ", " + constraint5 + ", " + constraint7);
-        return constraint1 * 5000 + constraint2 * 600 + constraint3 * 600 + constraint4 * 1500 + constraint5 * 1000 + constraint6 * 110 + constraint7 * 50;
+        return constraint1 * 6000 + constraint2 * 800 + constraint3 * 600 + constraint4 * 1500 + constraint5 * 1000 + constraint6 * 110 + constraint7 * 50;
     }
 
     private double getC1(Coordinate[] area1, Coordinate[] area2) {
@@ -103,6 +104,16 @@ public class SA {
 
     private double getC2(Coordinate[] area1, Coordinate[] area2) {
         return SAutil.getIntersection(area1, area2) / (SAutil.getArea(area1) + SAutil.getArea(area2));
+    }
+
+    private double getC3(Coordinate[][] doors, Coordinate[][] area) {
+        double res = 0;
+        for(int i = 0; i < doors.length; i++) {
+            for(int j = 0; j < area.length; j++) {
+                res += SAutil.getIntersection(doors[i], area[j]);
+            }
+        }
+        return res;
     }
 
     private double getC4(Coordinate[] area) { //修改了主墙约束
@@ -192,7 +203,7 @@ public class SA {
 
                     double fold = getFitness(pop.get(i));//老解
                     double fnew = getFitness(newpop.get(i));//新解
-                    System.out.println(fold + ", " + fnew + ", " + (fnew - fold));
+                    System.out.println(fold + ", " + fnew + ", " + Math.exp(-(fnew - fold) / T));
                     if (fnew < fold || Math.random() < Math.exp(-(fnew - fold) / T)) {
                         for (int j = 0; j < popsize; j++) {
                             for (int k = 0; k < dim; k++) {
@@ -247,7 +258,9 @@ public class SA {
 //        System.out.println(pop);
 
         SA sa = new SA(pop.size(), 10, pop, 11, 9);
+        long now = System.currentTimeMillis();
         double[] res = sa.runSA();
+        System.out.println((System.currentTimeMillis() - now) / 1000);
 
         Coordinate[] room = new Coordinate[]{
                 new Coordinate(7, 0), new Coordinate(11, 0), new Coordinate(11, 7.5),
