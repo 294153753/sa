@@ -163,10 +163,9 @@ public class SA {
     }
 
     public double[] runSA() {
-        List<double[]> newpop = deepClone(pop);
-
         while (T > 1e-15) {
 //            for (int iter = 0; iter < 1000; iter++) { //迭代次数
+                List<double[]> newpop = deepClone(pop);
                 int index = rand.nextInt(dim);
                 double stepindex = (-step) + rand.nextDouble() * (step - (-step)) % (step - (-step) + 1);
                 int tmp = (int) Math.abs(Math.floor(stepindex)) % 4;
@@ -203,7 +202,7 @@ public class SA {
 
                     double fold = getFitness(pop.get(i));//老解
                     double fnew = getFitness(newpop.get(i));//新解
-                    System.out.println(fold + ", " + fnew + ", " + Math.exp(-(fnew - fold) / T));
+                    System.out.println("第" + i + "组：" + fold + ", " + fnew + ", " + Math.exp(-(fnew - fold) / T));
                     if (fnew < fold || Math.random() < Math.exp(-(fnew - fold) / T)) {
                         for (int j = 0; j < popsize; j++) {
                             for (int k = 0; k < dim; k++) {
@@ -240,7 +239,7 @@ public class SA {
     public static void main(String[] args) {
         List<double[]> pop = new ArrayList<>();
         double[] r = new double[10];
-        for (int i = 0; i < 4; i++) { //随机解个数
+        for (int i = 0; i < 8; i++) { //随机解个数
             r[0] = nextDouble(0, 11);
             r[1] = nextDouble(0, 11);
             r[2] = nextInt(0, 4); // 0:向下 1:向左 2:向上 3:向右
@@ -260,7 +259,7 @@ public class SA {
         SA sa = new SA(pop.size(), 10, pop, 11, 9);
         long now = System.currentTimeMillis();
         double[] res = sa.runSA();
-        System.out.println((System.currentTimeMillis() - now) / 1000);
+        System.out.println("耗时：" + (System.currentTimeMillis() - now) / 1000 + "秒");
 
         Coordinate[] room = new Coordinate[]{
                 new Coordinate(7, 0), new Coordinate(11, 0), new Coordinate(11, 7.5),
